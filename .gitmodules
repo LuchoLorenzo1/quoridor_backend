@@ -1,0 +1,6 @@
+[submodule "quoridor"]
+	path = quoridor
+	url = git@github.com:LuchoLorenzo1/quoridor.git
+[submodule "quoridor_ws_server"]
+	path = quoridor_ws_server
+	url = git@github.com:LuchoLorenzo1/quoridor_ws_server.git

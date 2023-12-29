@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    env_file: ./.env
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_USER=$POSTGRES_USER
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis
+    env_file: ./.env
+    ports:
+      - 6379:6379
+
+  next:
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    build: ./quoridor/
+    env_file: ./.env
+    ports:
+      - 3000:3000
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - WS_URL=http://ws_server:8000
+      - POSTGRES_USER=$POSTGRES_USER
+      - NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+      - GITHUB_ID=$GITHUB_ID
+      - GITHUB_SECRET=$GITHUB_SECRET
+      - GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+      - NODE_ENV=development
+    volumes:
+      - ./quoridor:/app
+      - /app/node_modules/
+    command: npm run dev
+
+  ws_server:
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+    build: ./quoridor_ws_server/
+    env_file: ./.env
+    ports:
+      - 8000:8000
+    environment:
+      - PORT=8000
+      - REDIS_URL=redis://redis:6379
+      - NEXT_URL=http://next:3000
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_USER=$POSTGRES_USER
+      - NODE_ENV=development
+    volumes:
+      - ./quoridor_ws_server:/app
+      - /app/node_modules/
+    command: npm run dev
