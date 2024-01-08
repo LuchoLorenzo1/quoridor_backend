@@ -4,6 +4,9 @@ CREATE TABLE users (
   email VARCHAR(255) NOT NULL UNIQUE,
   email_verified BOOLEAN DEFAULT false,
   image TEXT,
+  rating smallint default 1500,
+  rating_deviation real default 500,
+  volatility real default 0.05,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
